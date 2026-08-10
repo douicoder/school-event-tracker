@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# agent / session memory (may contain secrets)
+session-*.md
+
+# local dev artifacts
+dev.log
