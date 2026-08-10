@@ -22,10 +22,10 @@ const variantClasses: Record<Variant, string> = {
 };
 
 const sizeClasses: Record<Size, string> = {
-  sm: "h-8 rounded-md px-3 text-xs",
-  default: "h-9 rounded-lg px-4 py-2 text-sm",
-  lg: "h-10 rounded-lg px-6 text-sm",
-  icon: "h-9 w-9 rounded-lg",
+  sm: "h-9 rounded-md px-3 text-xs",
+  default: "h-10 rounded-lg px-4 py-2 text-sm",
+  lg: "h-11 rounded-lg px-6 text-sm",
+  icon: "h-10 w-10 rounded-lg",
 };
 
 export function Button({
@@ -38,8 +38,9 @@ export function Button({
   return (
     <button
       type={type}
+      {...({ autoComplete: "off" } as React.ButtonHTMLAttributes<HTMLButtonElement>)}
       className={cn(
-        "inline-flex items-center justify-center gap-1.5 whitespace-nowrap font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none",
+        "inline-flex items-center justify-center gap-1.5 whitespace-nowrap font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none active:scale-[0.97]",
         variantClasses[variant],
         sizeClasses[size],
         className,

@@ -82,6 +82,7 @@ export function LoginForm() {
 
       <button
         type="submit"
+        {...({ autoComplete: "off" } as React.ButtonHTMLAttributes<HTMLButtonElement>)}
         disabled={loading}
         className="mt-4 w-full rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 disabled:opacity-50"
       >

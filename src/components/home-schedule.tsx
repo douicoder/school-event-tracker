@@ -35,7 +35,7 @@ export function HomeSchedule({ classes, initialClassId, role, assignedClassId }:
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
             {classes.length > 1 ? (
               <Select
                 value={selectedClassId}
@@ -52,7 +52,7 @@ export function HomeSchedule({ classes, initialClassId, role, assignedClassId }:
             ) : null}
 
             {canManage ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground">
+              <span className="inline-flex w-fit items-center gap-1 rounded-full bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground">
                 <Lock className="h-3 w-3" />
                 Can manage
               </span>

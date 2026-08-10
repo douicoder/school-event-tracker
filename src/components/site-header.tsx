@@ -10,16 +10,18 @@ export async function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
-      <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-2 font-semibold">
-          <CalendarDays className="h-5 w-5 text-primary" />
-          Class Event Tracker
+      <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-2 px-3 sm:px-4">
+        <Link href="/" className="flex min-w-0 items-center gap-2 font-semibold">
+          <CalendarDays className="h-5 w-5 shrink-0 text-primary" />
+          <span className="hidden truncate text-sm sm:inline sm:text-base">
+            Class Event Tracker
+          </span>
         </Link>
 
-        <nav className="flex items-center gap-2">
+        <nav className="flex shrink-0 items-center gap-1 sm:gap-2">
           <Link
             href="/"
-            className="rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground transition hover:bg-accent hover:text-accent-foreground"
+            className="hidden rounded-lg px-2.5 py-2 text-sm font-medium text-muted-foreground transition hover:bg-accent hover:text-accent-foreground sm:block"
           >
             Home
           </Link>
@@ -27,7 +29,7 @@ export async function SiteHeader() {
           {user?.role === "admin" ? (
             <Link
               href="/admin"
-              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground transition hover:bg-accent hover:text-accent-foreground"
+              className="flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-sm font-medium text-muted-foreground transition hover:bg-accent hover:text-accent-foreground"
             >
               <ShieldCheck className="h-4 w-4" />
               Admin
@@ -37,16 +39,11 @@ export async function SiteHeader() {
           <ThemeToggle />
 
           {user ? (
-            <div className="flex items-center gap-2">
-              <span className="hidden max-w-[180px] truncate text-sm text-muted-foreground sm:block">
-                {user.email}
-              </span>
-              <LogoutButton />
-            </div>
+            <LogoutButton />
           ) : (
             <Link
               href="/login"
-              className="rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
+              className="rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
             >
               Sign in
             </Link>

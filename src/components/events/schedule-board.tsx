@@ -98,7 +98,7 @@ export function ScheduleBoard({ classId, canManage }: ScheduleBoardProps) {
 
   return (
     <div>
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3">
         <p className="text-sm text-muted-foreground">
           Showing <span className="font-medium text-foreground">today</span> through{" "}
           <span className="font-medium text-foreground">{days[days.length - 1].dateLabel}</span>

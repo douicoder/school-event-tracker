@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { BookOpenText, FolderPlus } from "lucide-react";
+import { FolderPlus } from "lucide-react";
 import { getCurrentUser } from "@/auth/helpers";
 import { classManager } from "@/server/container";
 import { HomeSchedule } from "@/components/home-schedule";
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 
 export const metadata: Metadata = {
   title: "Class Event Tracker",
@@ -24,9 +25,9 @@ export default async function HomePage() {
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:py-8">
         {classes.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border py-20 text-center">
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border px-4 py-14 text-center sm:py-20">
             <FolderPlus className="h-10 w-10 text-muted-foreground" />
             <h1 className="mt-4 text-xl font-semibold">No classes yet</h1>
             <p className="mt-1 max-w-sm text-sm text-muted-foreground">
@@ -36,7 +37,7 @@ export default async function HomePage() {
             {!user ? (
               <a
                 href="/login"
-                className="mt-5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
+                className="mt-5 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
               >
                 Sign in as administrator
               </a>
@@ -50,12 +51,8 @@ export default async function HomePage() {
             assignedClassId={user?.assignedClassId ?? null}
           />
         )}
-
-        <footer className="mt-12 flex items-center justify-center gap-1.5 pb-4 text-xs text-muted-foreground">
-          <BookOpenText className="h-3.5 w-3.5" />
-          Class Event Tracker
-        </footer>
       </main>
+      <SiteFooter />
     </>
   );
 }

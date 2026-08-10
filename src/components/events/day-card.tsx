@@ -30,7 +30,7 @@ export function DayCard({ day, onEventOpen }: DayCardProps) {
             <EventCard key={event.id} event={event} onOpen={onEventOpen} />
           ))
         ) : (
-          <div className="flex flex-1 items-center justify-center rounded-xl border border-dashed border-border py-6 text-xs text-muted-foreground">
+          <div className="flex flex-1 items-center justify-center rounded-xl border border-dashed border-border py-8 text-xs text-muted-foreground">
             No events
           </div>
         )}

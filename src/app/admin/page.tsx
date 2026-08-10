@@ -3,6 +3,7 @@ import { requireAdmin } from "@/auth/helpers";
 import { classManager, userManager } from "@/server/container";
 import { AdminPanel } from "@/components/admin/admin-panel";
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 
 export const metadata: Metadata = {
   title: "Admin Panel | Class Event Tracker",
@@ -18,7 +19,7 @@ export default async function AdminPage() {
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:py-8">
         <div className="mb-6">
           <h1 className="text-2xl font-bold">Admin Panel</h1>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -32,6 +33,7 @@ export default async function AdminPage() {
           currentUserId={user.id}
         />
       </main>
+      <SiteFooter />
     </>
   );
 }
