@@ -45,7 +45,7 @@ export function DayCard({ day, nextEvent, onEventOpen }: DayCardProps) {
                 <span>{nextEventLabel(nextEvent.eventDate)}</span>
               </>
             ) : (
-              <span>No tests tomorrow. Enjoy your day…</span>
+              <span>No tests coming up. Enjoy your day…</span>
             )}
           </div>
         )}

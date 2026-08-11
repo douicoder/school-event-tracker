@@ -12,19 +12,13 @@ export function todayKey(): string {
 export function buildWeek(anchor: Date, events: EventInfo[] = []): DaySchedule[] {
   const today = startOfDay(anchor);
   const todayDateKey = dateKey(new Date());
-  const tomorrowKey = dateKey(addDays(startOfDay(new Date()), 1));
 
   return Array.from({ length: 7 }, (_, i) => {
     const date = addDays(today, i);
     const key = dateKey(date);
     return {
       dateKey: key,
-      dayName:
-        key === todayDateKey
-          ? "Today"
-          : key === tomorrowKey
-            ? "Tomorrow"
-            : format(date, "EEEE"),
+      dayName: key === todayDateKey ? "Today" : format(date, "EEEE"),
       dateLabel: format(date, "MMM d"),
       isToday: key === todayDateKey,
       events: events.filter((event) => event.eventDate === key),
