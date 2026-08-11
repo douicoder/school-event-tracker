@@ -53,6 +53,8 @@ export class EventManager implements IEventManager {
       description: input.description,
       color: input.color,
       eventDate: input.eventDate,
+      updatedBy: actor.id,
+      updatedAt: new Date(),
     });
     return toEventInfo(row);
   }

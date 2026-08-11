@@ -11,6 +11,7 @@ declare module "@auth/core/types" {
   }
 
   interface User {
+    name: string | null;
     role: UserRole;
     assignedClassId: string | null;
   }
@@ -18,6 +19,7 @@ declare module "@auth/core/types" {
 
 declare module "@auth/core/jwt" {
   interface JWT {
+    name?: string | null;
     role?: UserRole;
     assignedClassId?: string | null;
   }

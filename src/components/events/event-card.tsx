@@ -31,6 +31,11 @@ export function EventCard({ event, onOpen }: EventCardProps) {
           {event.description}
         </p>
       ) : null}
+      {event.createdByName ? (
+        <p className="mt-1 pl-4 text-[11px] text-muted-foreground/80">
+          by {event.createdByName}
+        </p>
+      ) : null}
     </button>
   );
 }

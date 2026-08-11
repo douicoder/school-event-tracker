@@ -5,6 +5,7 @@ export interface IUsersRepository {
   findById(id: string): Promise<UserRow | null>;
   create(data: NewUser): Promise<UserRow>;
   listAll(): Promise<UserRow[]>;
+  updateName(id: string, name: string): Promise<UserRow>;
   updateRole(id: string, role: UserRow["role"]): Promise<UserRow>;
   updateAssignedClass(id: string, classId: string | null): Promise<UserRow>;
   updatePassword(id: string, passwordHash: string): Promise<UserRow>;

@@ -13,10 +13,18 @@ async function main() {
   });
 
   if (existing) {
+    let changed = false;
     if (existing.role !== "admin") {
       await db.update(users).set({ role: "admin" }).where(eq(users.id, existing.id));
       console.log(`Promoted ${email} to admin.`);
-    } else {
+      changed = true;
+    }
+    if (!existing.name) {
+      await db.update(users).set({ name: "Administrator" }).where(eq(users.id, existing.id));
+      console.log(`Set admin name to "Administrator".`);
+      changed = true;
+    }
+    if (!changed) {
       console.log(`Admin ${email} already exists. Skipping.`);
     }
     return;
@@ -25,6 +33,7 @@ async function main() {
   const passwordHash = await bcrypt.hash(env.ADMIN_PASSWORD, 10);
   await db.insert(users).values({
     email,
+    name: "Administrator",
     passwordHash,
     role: "admin",
     assignedClassId: null,

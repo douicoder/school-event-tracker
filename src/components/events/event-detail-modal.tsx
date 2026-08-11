@@ -3,7 +3,7 @@
 import { Pencil, Trash2 } from "lucide-react";
 import type { EventInfo } from "@/domain";
 import { COLOR_META, COLOR_VARIANTS } from "@/lib/colors";
-import { formatEventDate } from "@/lib/dates";
+import { formatDateTime, formatEventDate } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -49,8 +49,25 @@ export function EventDetailModal({
           <p className="text-sm text-muted-foreground">No description provided.</p>
         )}
 
+        <div className="border-t border-border pt-3 text-xs text-muted-foreground">
+          <p>
+            Added by <span className="font-medium text-foreground">{event.createdByName ?? "—"}</span>
+            {event.createdAt ? (
+              <> on <span className="font-medium text-foreground">{formatDateTime(event.createdAt)}</span></>
+            ) : null}
+          </p>
+          {event.updatedAt ? (
+            <p className="mt-1">
+              Last edited by{" "}
+              <span className="font-medium text-foreground">{event.updatedByName ?? "—"}</span>
+              {" on "}
+              <span className="font-medium text-foreground">{formatDateTime(event.updatedAt)}</span>
+            </p>
+          ) : null}
+        </div>
+
         {canManage ? (
-          <div className="flex justify-end gap-2 border-t border-border pt-4">
+          <div className="flex justify-end gap-2 pt-2">
             <Button variant="outline" onClick={() => onDelete(event)}>
               <Trash2 className="h-4 w-4" />
               Delete

@@ -28,6 +28,7 @@ export const authConfig = {
         return {
           id: user.id,
           email: user.email,
+          name: user.name,
           role: user.role,
           assignedClassId: user.assignedClassId,
         };
@@ -39,6 +40,7 @@ export const authConfig = {
       if (user) {
         token.role = user.role;
         token.assignedClassId = user.assignedClassId;
+        token.name = user.name;
       }
       return token;
     },
@@ -47,6 +49,7 @@ export const authConfig = {
         session.user.id = token.sub ?? "";
         session.user.role = token.role ?? "class_manager";
         session.user.assignedClassId = token.assignedClassId ?? null;
+        session.user.name = token.name ?? null;
       }
       return session;
     },

@@ -1,10 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { addDays } from "date-fns";
-import { CalendarPlus, Loader2, RefreshCw, Trash2 } from "lucide-react";
+import { addDays, startOfDay } from "date-fns";
+import { CalendarPlus, ChevronLeft, ChevronRight, Loader2, RefreshCw, Trash2 } from "lucide-react";
 import type { EventInfo } from "@/domain";
-import { buildWeek, dateKey, todayKey } from "@/lib/dates";
+import { buildWeek, dateKey } from "@/lib/dates";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
@@ -21,6 +21,7 @@ export function ScheduleBoard({ classId, canManage }: ScheduleBoardProps) {
   const [events, setEvents] = React.useState<EventInfo[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [offset, setOffset] = React.useState(0);
 
   const [detailEvent, setDetailEvent] = React.useState<EventInfo | null>(null);
   const [editEvent, setEditEvent] = React.useState<EventInfo | null>(null);
@@ -28,21 +29,20 @@ export function ScheduleBoard({ classId, canManage }: ScheduleBoardProps) {
   const [deleteTarget, setDeleteTarget] = React.useState<EventInfo | null>(null);
   const [deleting, setDeleting] = React.useState(false);
 
-  const from = todayKey();
-  const to = dateKey(addDays(new Date(), 30));
-  const days = buildWeek(new Date(), events);
+  const anchorDate = startOfDay(addDays(new Date(), offset));
+  const from = dateKey(anchorDate);
+  const to = dateKey(addDays(anchorDate, 30));
+  const days = buildWeek(anchorDate, events);
 
-  const upcomingEvents = React.useMemo(() => {
-    return events
-      .filter((event) => event.eventDate >= from)
-      .sort(
-        (a, b) =>
-          a.eventDate.localeCompare(b.eventDate) ||
-          a.title.localeCompare(b.title),
-      );
-  }, [events, from]);
+  const upcomingEvents = events
+    .filter((event) => event.eventDate >= from)
+    .sort(
+      (a, b) =>
+        a.eventDate.localeCompare(b.eventDate) ||
+        a.title.localeCompare(b.title),
+    );
 
-  const loadEvents = React.useCallback(async () => {
+  async function loadEvents() {
     try {
       const data = await api.get<{ events: EventInfo[] }>(
         `/api/classes/${classId}/events?from=${from}&to=${to}`,
@@ -53,7 +53,7 @@ export function ScheduleBoard({ classId, canManage }: ScheduleBoardProps) {
     } finally {
       setLoading(false);
     }
-  }, [classId, from, to]);
+  }
 
   React.useEffect(() => {
     let cancelled = false;
@@ -79,6 +79,18 @@ export function ScheduleBoard({ classId, canManage }: ScheduleBoardProps) {
     setLoading(true);
     setError(null);
     loadEvents();
+  }
+
+  function shiftWeek(delta: number) {
+    setLoading(true);
+    setError(null);
+    setOffset((current) => current + delta);
+  }
+
+  function goToToday() {
+    setLoading(true);
+    setError(null);
+    setOffset(0);
   }
 
   function handleSaved(event: EventInfo) {
@@ -110,10 +122,39 @@ export function ScheduleBoard({ classId, canManage }: ScheduleBoardProps) {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3">
         <p className="text-sm text-muted-foreground">
-          Showing <span className="font-medium text-foreground">today</span> through{" "}
+          Showing{" "}
+          <span className="font-medium text-foreground">
+            {offset === 0 ? "today" : days[0].dateLabel}
+          </span>{" "}
+          through{" "}
           <span className="font-medium text-foreground">{days[days.length - 1].dateLabel}</span>
         </p>
         <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            <Button
+              size="icon"
+              variant="outline"
+              onClick={() => shiftWeek(-7)}
+              aria-label="Previous 7 days"
+              disabled={loading}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            {offset !== 0 ? (
+              <Button size="sm" variant="outline" onClick={goToToday} disabled={loading}>
+                Today
+              </Button>
+            ) : null}
+            <Button
+              size="icon"
+              variant="outline"
+              onClick={() => shiftWeek(7)}
+              aria-label="Next 7 days"
+              disabled={loading}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
           {canManage ? (
             <Button size="sm" onClick={() => setCreateOpen(true)}>
               <CalendarPlus className="h-4 w-4" />

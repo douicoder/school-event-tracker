@@ -11,7 +11,8 @@ export function todayKey(): string {
 
 export function buildWeek(anchor: Date, events: EventInfo[] = []): DaySchedule[] {
   const today = startOfDay(anchor);
-  const tomorrowKey = dateKey(addDays(today, 1));
+  const todayDateKey = dateKey(new Date());
+  const tomorrowKey = dateKey(addDays(startOfDay(new Date()), 1));
 
   return Array.from({ length: 7 }, (_, i) => {
     const date = addDays(today, i);
@@ -19,9 +20,13 @@ export function buildWeek(anchor: Date, events: EventInfo[] = []): DaySchedule[]
     return {
       dateKey: key,
       dayName:
-        i === 0 ? "Today" : key === tomorrowKey ? "Tomorrow" : format(date, "EEEE"),
+        key === todayDateKey
+          ? "Today"
+          : key === tomorrowKey
+            ? "Tomorrow"
+            : format(date, "EEEE"),
       dateLabel: format(date, "MMM d"),
-      isToday: i === 0,
+      isToday: key === todayDateKey,
       events: events.filter((event) => event.eventDate === key),
     };
   });
@@ -31,4 +36,8 @@ export function formatEventDate(dateKeyValue: string): string {
   const [year, month, day] = dateKeyValue.split("-").map(Number);
   const date = new Date(year, month - 1, day);
   return format(date, "EEE, MMM d yyyy");
+}
+
+export function formatDateTime(iso: string): string {
+  return format(new Date(iso), "MMM d, yyyy 'at' h:mm a");
 }

@@ -17,11 +17,18 @@ export interface EventInfo {
   description: string | null;
   color: EventColor;
   eventDate: string;
+  createdBy: string | null;
+  createdByName: string | null;
+  createdAt: string | null;
+  updatedBy: string | null;
+  updatedByName: string | null;
+  updatedAt: string | null;
 }
 
 export interface User {
   id: string;
   email: string;
+  name: string | null;
   role: UserRole;
   assignedClassId: string | null;
 }
@@ -62,6 +69,7 @@ export interface UpdateClassInput {
 }
 
 export interface CreateUserInput {
+  name: string;
   email: string;
   password: string;
   role: UserRole;
@@ -69,6 +77,7 @@ export interface CreateUserInput {
 }
 
 export interface UpdateUserInput {
+  name?: string;
   role?: UserRole;
   assignedClassId?: string | null;
   password?: string;

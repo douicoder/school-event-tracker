@@ -28,6 +28,11 @@ export class UsersRepository implements IUsersRepository {
     return this.db.select().from(users).orderBy(desc(users.createdAt));
   }
 
+  async updateName(id: string, name: string): Promise<UserRow> {
+    const rows = await this.db.update(users).set({ name }).where(eq(users.id, id)).returning();
+    return rows[0];
+  }
+
   async updateRole(id: string, role: UserRow["role"]): Promise<UserRow> {
     const rows = await this.db.update(users).set({ role }).where(eq(users.id, id)).returning();
     return rows[0];

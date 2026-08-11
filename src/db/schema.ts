@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import {
   date,
   index,
@@ -33,6 +34,7 @@ export const users = pgTable("users", {
   assignedClassId: uuid("assigned_class_id").references(() => classes.id, {
     onDelete: "set null",
   }),
+  name: text("name"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
@@ -51,9 +53,31 @@ export const events = pgTable(
       onDelete: "set null",
     }),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedBy: uuid("updated_by").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    updatedAt: timestamp("updated_at", { withTimezone: true }),
   },
   (table) => [index("events_class_date_idx").on(table.classId, table.eventDate)],
 );
+
+export const usersRelations = relations(users, ({ many }) => ({
+  createdEvents: many(events, { relationName: "createdEvents" }),
+  updatedEvents: many(events, { relationName: "updatedEvents" }),
+}));
+
+export const eventsRelations = relations(events, ({ one }) => ({
+  createdByUser: one(users, {
+    fields: [events.createdBy],
+    references: [users.id],
+    relationName: "createdEvents",
+  }),
+  updatedByUser: one(users, {
+    fields: [events.updatedBy],
+    references: [users.id],
+    relationName: "updatedEvents",
+  }),
+}));
 
 export type ClassRow = typeof classes.$inferSelect;
 export type NewClass = typeof classes.$inferInsert;

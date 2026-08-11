@@ -19,6 +19,7 @@ interface UserProvisioningProps {
 }
 
 interface FormState {
+  name: string;
   email: string;
   password: string;
   role: UserRole;
@@ -26,6 +27,7 @@ interface FormState {
 }
 
 const emptyForm: FormState = {
+  name: "",
   email: "",
   password: "",
   role: "class_manager",
@@ -57,6 +59,7 @@ export function UserProvisioning({
 
   function openEdit(user: User) {
     setForm({
+      name: user.name ?? "",
       email: user.email,
       password: "",
       role: user.role,
@@ -90,7 +93,13 @@ export function UserProvisioning({
     try {
       const isManager = form.role === "class_manager";
       if (editing) {
-        const payload: { role: UserRole; assignedClassId: string | null; password?: string } = {
+        const payload: {
+          name: string;
+          role: UserRole;
+          assignedClassId: string | null;
+          password?: string;
+        } = {
+          name: form.name.trim(),
           role: form.role,
           assignedClassId: isManager ? form.assignedClassId || null : null,
         };
@@ -99,6 +108,7 @@ export function UserProvisioning({
         onUsersChanged(users.map((u) => (u.id === editing.id ? res.user : u)));
       } else {
         const res = await api.post<{ user: User }>("/api/admin/users", {
+          name: form.name.trim(),
           email: form.email.trim(),
           password: form.password,
           role: form.role,
@@ -157,16 +167,13 @@ export function UserProvisioning({
             >
               <div className="min-w-0">
                 <p className="flex items-center gap-2 truncate font-medium">
-                  {user.email}
+                  {user.name ?? user.email}
                   {user.id === currentUserId ? <Badge variant="secondary">You</Badge> : null}
                 </p>
-                <p className="mt-0.5 text-sm text-muted-foreground">
-                  <Badge variant="outline" className="mr-2">
-                    {roleLabel(user.role)}
-                  </Badge>
-                  {user.role === "class_manager"
-                    ? classNameFor(user.assignedClassId)
-                    : null}
+                <p className="mt-0.5 flex items-center gap-2 text-sm text-muted-foreground">
+                  <Badge variant="outline">{roleLabel(user.role)}</Badge>
+                  {user.role === "class_manager" ? classNameFor(user.assignedClassId) : null}
+                  {user.name ? <span className="truncate">{user.email}</span> : null}
                 </p>
               </div>
               <div className="flex shrink-0 items-center gap-1">
@@ -200,6 +207,20 @@ export function UserProvisioning({
         }
       >
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="user-name" className="mb-1 block text-sm font-medium">
+              Name
+            </label>
+            <Input
+              id="user-name"
+              required
+              maxLength={100}
+              value={form.name}
+              onChange={(e) => updateField("name", e.target.value)}
+              placeholder="e.g. Alex Johnson"
+            />
+          </div>
+
           {!editing ? (
             <div>
               <label htmlFor="user-email" className="mb-1 block text-sm font-medium">

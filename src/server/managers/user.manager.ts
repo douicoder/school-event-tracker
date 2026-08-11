@@ -26,6 +26,7 @@ export class UserManager implements IUserManager {
 
     const passwordHash = await bcrypt.hash(input.password, 10);
     const row = await this.usersRepository.create({
+      name: input.name.trim(),
       email,
       passwordHash,
       role: input.role,
@@ -45,6 +46,9 @@ export class UserManager implements IUserManager {
     if (!existing) throw notFound("User not found");
 
     let row = existing;
+    if (input.name !== undefined) {
+      row = await this.usersRepository.updateName(id, input.name.trim());
+    }
     if (input.role) {
       row = await this.usersRepository.updateRole(id, input.role);
     }

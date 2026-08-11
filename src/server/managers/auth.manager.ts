@@ -16,6 +16,7 @@ export class AuthManager implements IAuthManager {
     return {
       id: user.id,
       email: user.email,
+      name: user.name,
       role: user.role,
       assignedClassId: user.assignedClassId,
     };
