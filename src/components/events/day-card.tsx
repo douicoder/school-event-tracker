@@ -1,3 +1,4 @@
+import { format, parseISO } from "date-fns";
 import type { DaySchedule, EventInfo } from "@/domain";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -9,17 +10,8 @@ interface DayCardProps {
   onEventOpen: (event: EventInfo) => void;
 }
 
-function daysBetween(fromKey: string, toKey: string): number {
-  const [fy, fm, fd] = fromKey.split("-").map(Number);
-  const [ty, tm, td] = toKey.split("-").map(Number);
-  return Math.round(
-    (Date.UTC(ty, tm - 1, td) - Date.UTC(fy, fm - 1, fd)) / 86_400_000,
-  );
-}
-
-function nextEventLabel(fromKey: string, toKey: string): string {
-  const days = daysBetween(fromKey, toKey);
-  return days === 1 ? "tomorrow" : `in ${days} days`;
+function nextEventLabel(eventDate: string): string {
+  return format(parseISO(eventDate), "EEEE");
 }
 
 export function DayCard({ day, nextEvent, onEventOpen }: DayCardProps) {
@@ -50,7 +42,7 @@ export function DayCard({ day, nextEvent, onEventOpen }: DayCardProps) {
                 <span className="font-medium text-foreground">
                   {nextEvent.title}
                 </span>
-                <span>{nextEventLabel(day.dateKey, nextEvent.eventDate)}</span>
+                <span>{nextEventLabel(nextEvent.eventDate)}</span>
               </>
             ) : (
               <span>No tests tomorrow. Enjoy your day…</span>
