@@ -26,13 +26,8 @@ export function EventCard({ event, onOpen }: EventCardProps) {
           {event.title}
         </span>
       </div>
-      {event.description ? (
-        <p className="mt-0.5 line-clamp-1 pl-4 text-xs text-muted-foreground">
-          {event.description}
-        </p>
-      ) : null}
       {event.createdByName ? (
-        <p className="mt-1 pl-4 text-[11px] text-muted-foreground/80">
+        <p className="mt-1 text-right text-[11px] text-muted-foreground/80">
           by {event.createdByName}
         </p>
       ) : null}
