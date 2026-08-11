@@ -5,10 +5,24 @@ import { EventCard } from "./event-card";
 
 interface DayCardProps {
   day: DaySchedule;
+  nextEvent: EventInfo | null;
   onEventOpen: (event: EventInfo) => void;
 }
 
-export function DayCard({ day, onEventOpen }: DayCardProps) {
+function daysBetween(fromKey: string, toKey: string): number {
+  const [fy, fm, fd] = fromKey.split("-").map(Number);
+  const [ty, tm, td] = toKey.split("-").map(Number);
+  return Math.round(
+    (Date.UTC(ty, tm - 1, td) - Date.UTC(fy, fm - 1, fd)) / 86_400_000,
+  );
+}
+
+function nextEventLabel(fromKey: string, toKey: string): string {
+  const days = daysBetween(fromKey, toKey);
+  return days === 1 ? "tomorrow" : `in ${days} days`;
+}
+
+export function DayCard({ day, nextEvent, onEventOpen }: DayCardProps) {
   return (
     <section
       className={cn(
@@ -30,8 +44,17 @@ export function DayCard({ day, onEventOpen }: DayCardProps) {
             <EventCard key={event.id} event={event} onOpen={onEventOpen} />
           ))
         ) : (
-          <div className="flex flex-1 items-center justify-center rounded-xl border border-dashed border-border py-8 text-xs text-muted-foreground">
-            No events
+          <div className="flex flex-1 flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-border px-3 py-6 text-center text-xs text-muted-foreground">
+            {nextEvent ? (
+              <>
+                <span className="font-medium text-foreground">
+                  {nextEvent.title}
+                </span>
+                <span>{nextEventLabel(day.dateKey, nextEvent.eventDate)}</span>
+              </>
+            ) : (
+              <span>No tests tomorrow. Enjoy your day…</span>
+            )}
           </div>
         )}
       </div>

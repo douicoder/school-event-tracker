@@ -8,7 +8,6 @@ import { buildWeek, dateKey, todayKey } from "@/lib/dates";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
-import { CountdownCard } from "./countdown-card";
 import { DayCard } from "./day-card";
 import { EventModal } from "./event-modal";
 import { EventDetailModal } from "./event-detail-modal";
@@ -32,6 +31,16 @@ export function ScheduleBoard({ classId, canManage }: ScheduleBoardProps) {
   const from = todayKey();
   const to = dateKey(addDays(new Date(), 30));
   const days = buildWeek(new Date(), events);
+
+  const upcomingEvents = React.useMemo(() => {
+    return events
+      .filter((event) => event.eventDate >= from)
+      .sort(
+        (a, b) =>
+          a.eventDate.localeCompare(b.eventDate) ||
+          a.title.localeCompare(b.title),
+      );
+  }, [events, from]);
 
   const loadEvents = React.useCallback(async () => {
     try {
@@ -117,10 +126,6 @@ export function ScheduleBoard({ classId, canManage }: ScheduleBoardProps) {
         </div>
       </div>
 
-      <div className="mt-4">
-        <CountdownCard events={events} />
-      </div>
-
       {error ? (
         <p className="mt-4 rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {error}
@@ -134,9 +139,19 @@ export function ScheduleBoard({ classId, canManage }: ScheduleBoardProps) {
         </div>
       ) : (
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {days.map((day) => (
-            <DayCard key={day.dateKey} day={day} onEventOpen={setDetailEvent} />
-          ))}
+          {days.map((day) => {
+            const nextEvent =
+              upcomingEvents.find((event) => event.eventDate > day.dateKey) ??
+              null;
+            return (
+              <DayCard
+                key={day.dateKey}
+                day={day}
+                nextEvent={nextEvent}
+                onEventOpen={setDetailEvent}
+              />
+            );
+          })}
         </div>
       )}
 
