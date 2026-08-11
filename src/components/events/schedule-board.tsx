@@ -8,6 +8,7 @@ import { buildWeek, dateKey, todayKey } from "@/lib/dates";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
+import { CountdownCard } from "./countdown-card";
 import { DayCard } from "./day-card";
 import { EventModal } from "./event-modal";
 import { EventDetailModal } from "./event-detail-modal";
@@ -29,7 +30,7 @@ export function ScheduleBoard({ classId, canManage }: ScheduleBoardProps) {
   const [deleting, setDeleting] = React.useState(false);
 
   const from = todayKey();
-  const to = dateKey(addDays(new Date(), 6));
+  const to = dateKey(addDays(new Date(), 30));
   const days = buildWeek(new Date(), events);
 
   const loadEvents = React.useCallback(async () => {
@@ -114,6 +115,10 @@ export function ScheduleBoard({ classId, canManage }: ScheduleBoardProps) {
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
           </Button>
         </div>
+      </div>
+
+      <div className="mt-4">
+        <CountdownCard events={events} />
       </div>
 
       {error ? (
