@@ -1,4 +1,3 @@
-import { format, parseISO } from "date-fns";
 import type { DaySchedule, EventInfo } from "@/domain";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -6,15 +5,10 @@ import { EventCard } from "./event-card";
 
 interface DayCardProps {
   day: DaySchedule;
-  nextEvent: EventInfo | null;
   onEventOpen: (event: EventInfo) => void;
 }
 
-function nextEventLabel(eventDate: string): string {
-  return format(parseISO(eventDate), "EEEE");
-}
-
-export function DayCard({ day, nextEvent, onEventOpen }: DayCardProps) {
+export function DayCard({ day, onEventOpen }: DayCardProps) {
   return (
     <section
       className={cn(
@@ -37,16 +31,7 @@ export function DayCard({ day, nextEvent, onEventOpen }: DayCardProps) {
           ))
         ) : (
           <div className="flex flex-1 flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-border px-3 py-6 text-center text-xs text-muted-foreground">
-            {nextEvent ? (
-              <>
-                <span className="font-medium text-foreground">
-                  {nextEvent.title}
-                </span>
-                <span>{nextEventLabel(nextEvent.eventDate)}</span>
-              </>
-            ) : (
-              <span>No tests coming up. Enjoy your day…</span>
-            )}
+            <span>Enjoy the rest of your day.</span>
           </div>
         )}
       </div>

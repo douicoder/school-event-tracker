@@ -34,14 +34,6 @@ export function ScheduleBoard({ classId, canManage }: ScheduleBoardProps) {
   const to = dateKey(addDays(anchorDate, 30));
   const days = buildWeek(anchorDate, events);
 
-  const upcomingEvents = events
-    .filter((event) => event.eventDate >= from)
-    .sort(
-      (a, b) =>
-        a.eventDate.localeCompare(b.eventDate) ||
-        a.title.localeCompare(b.title),
-    );
-
   async function loadEvents() {
     try {
       const data = await api.get<{ events: EventInfo[] }>(
@@ -180,19 +172,9 @@ export function ScheduleBoard({ classId, canManage }: ScheduleBoardProps) {
         </div>
       ) : (
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {days.map((day) => {
-            const nextEvent =
-              upcomingEvents.find((event) => event.eventDate > day.dateKey) ??
-              null;
-            return (
-              <DayCard
-                key={day.dateKey}
-                day={day}
-                nextEvent={nextEvent}
-                onEventOpen={setDetailEvent}
-              />
-            );
-          })}
+          {days.map((day) => (
+            <DayCard key={day.dateKey} day={day} onEventOpen={setDetailEvent} />
+          ))}
         </div>
       )}
 
