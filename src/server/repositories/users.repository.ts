@@ -56,6 +56,24 @@ export class UsersRepository implements IUsersRepository {
     return rows[0];
   }
 
+  async banUser(id: string): Promise<UserRow> {
+    const rows = await this.db
+      .update(users)
+      .set({ isBanned: true })
+      .where(eq(users.id, id))
+      .returning();
+    return rows[0];
+  }
+
+  async unbanUser(id: string): Promise<UserRow> {
+    const rows = await this.db
+      .update(users)
+      .set({ isBanned: false })
+      .where(eq(users.id, id))
+      .returning();
+    return rows[0];
+  }
+
   async deleteById(id: string): Promise<void> {
     await this.db.delete(users).where(eq(users.id, id));
   }

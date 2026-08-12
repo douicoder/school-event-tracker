@@ -1,6 +1,7 @@
 import type { ClassRow, UserRow } from "@/db/schema";
-import type { ClassInfo, EventInfo, User } from "@/domain";
+import type { ClassInfo, EventInfo, User, FlaggedEventInfo } from "@/domain";
 import type { EventWithUsers } from "@/server/interfaces/events.repository.interface";
+import type { FlaggedEventWithUser } from "@/server/interfaces/flagged-events.repository.interface";
 
 export function toClassInfo(row: ClassRow): ClassInfo {
   return {
@@ -39,5 +40,23 @@ export function toUser(row: UserRow): User {
     name: row.name,
     role: row.role,
     assignedClassId: row.assignedClassId,
+    isBanned: row.isBanned,
+  };
+}
+
+export function toFlaggedEventInfo(row: FlaggedEventWithUser): FlaggedEventInfo {
+  return {
+    id: row.id,
+    classId: row.classId,
+    className: row.class ? row.class.name : null,
+    title: row.title,
+    description: row.description,
+    color: row.color,
+    eventDate: row.eventDate,
+    submittedBy: row.submittedBy,
+    submittedByName: displayName(row.submittedByUser),
+    submittedByEmail: row.submittedByUser ? row.submittedByUser.email : null,
+    submittedAt: row.submittedAt.toISOString(),
+    isReviewed: row.isReviewed,
   };
 }

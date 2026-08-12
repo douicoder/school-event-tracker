@@ -6,6 +6,7 @@ import type { ClassInfo, User } from "@/domain";
 import { ClassManagement } from "./class-management";
 import { UserProvisioning } from "./user-provisioning";
 import { AdminSchedule } from "./admin-schedule";
+import { ModerationPanel } from "./moderation-panel";
 
 interface AdminPanelProps {
   initialClasses: ClassInfo[];
@@ -48,6 +49,8 @@ export function AdminPanel({ initialClasses, initialUsers, currentUserId }: Admi
       <div className="mt-6">
         <AdminSchedule classes={classes} />
       </div>
+
+      <ModerationPanel users={users} onUsersChanged={setUsers} onError={setError} />
     </div>
   );
 }

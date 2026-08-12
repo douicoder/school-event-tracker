@@ -1,10 +1,11 @@
 "use client";
 
 import * as React from "react";
+import { signOut } from "next-auth/react";
 import { Save, Loader2 } from "lucide-react";
 import type { EventColor, EventInfo } from "@/domain";
 import { COLOR_META, COLOR_VARIANTS, EVENT_COLOR_ORDER } from "@/lib/colors";
-import { api } from "@/lib/api";
+import { ApiError, api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,6 +57,10 @@ export function EventModal({
       onSaved(saved.event);
       onClose();
     } catch (err) {
+      if (err instanceof ApiError && err.code === "ACCOUNT_BANNED") {
+        await signOut({ redirectTo: "/login" });
+        return;
+      }
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setSaving(false);

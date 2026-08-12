@@ -45,3 +45,6 @@ session-*.md
 
 # local dev artifacts
 dev.log
+
+# profanity word list
+profanity-list.txt

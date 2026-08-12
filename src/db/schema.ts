@@ -1,5 +1,6 @@
 import { relations } from "drizzle-orm";
 import {
+  boolean,
   date,
   index,
   pgEnum,
@@ -35,6 +36,7 @@ export const users = pgTable("users", {
     onDelete: "set null",
   }),
   name: text("name"),
+  isBanned: boolean("is_banned").default(false).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
@@ -79,6 +81,33 @@ export const eventsRelations = relations(events, ({ one }) => ({
   }),
 }));
 
+export const flaggedEvents = pgTable("flagged_events", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  classId: uuid("class_id").references(() => classes.id, {
+    onDelete: "set null",
+  }),
+  title: text("title").notNull(),
+  description: text("description"),
+  color: text("color").notNull(),
+  eventDate: text("event_date").notNull(),
+  submittedBy: uuid("submitted_by").references(() => users.id, {
+    onDelete: "set null",
+  }),
+  submittedAt: timestamp("submitted_at", { withTimezone: true }).defaultNow().notNull(),
+  isReviewed: boolean("is_reviewed").default(false).notNull(),
+});
+
+export const flaggedEventsRelations = relations(flaggedEvents, ({ one }) => ({
+  submittedByUser: one(users, {
+    fields: [flaggedEvents.submittedBy],
+    references: [users.id],
+  }),
+  class: one(classes, {
+    fields: [flaggedEvents.classId],
+    references: [classes.id],
+  }),
+}));
+
 export type ClassRow = typeof classes.$inferSelect;
 export type NewClass = typeof classes.$inferInsert;
 
@@ -87,3 +116,6 @@ export type NewUser = typeof users.$inferInsert;
 
 export type EventRow = typeof events.$inferSelect;
 export type NewEvent = typeof events.$inferInsert;
+
+export type FlaggedEventRow = typeof flaggedEvents.$inferSelect;
+export type NewFlaggedEvent = typeof flaggedEvents.$inferInsert;

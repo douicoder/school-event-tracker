@@ -12,6 +12,7 @@ export async function getCurrentUser(): Promise<UserSession | null> {
     name: user.name ?? null,
     role: user.role,
     assignedClassId: user.assignedClassId,
+    isBanned: false,
   };
 }
 

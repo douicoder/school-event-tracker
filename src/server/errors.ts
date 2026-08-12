@@ -28,3 +28,7 @@ export function validationError(message = "Invalid input") {
 export function conflict(message = "Resource already exists") {
   return new AppError(409, "CONFLICT", message);
 }
+
+export function accountBanned(message = "Your account has been banned due to a violation of our content policy") {
+  return new AppError(403, "ACCOUNT_BANNED", message);
+}

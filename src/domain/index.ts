@@ -31,6 +31,7 @@ export interface User {
   name: string | null;
   role: UserRole;
   assignedClassId: string | null;
+  isBanned: boolean;
 }
 
 export type UserSession = User;
@@ -81,4 +82,20 @@ export interface UpdateUserInput {
   role?: UserRole;
   assignedClassId?: string | null;
   password?: string;
+  isBanned?: boolean;
+}
+
+export interface FlaggedEventInfo {
+  id: string;
+  classId: string | null;
+  className: string | null;
+  title: string;
+  description: string | null;
+  color: string;
+  eventDate: string;
+  submittedBy: string | null;
+  submittedByName: string | null;
+  submittedByEmail: string | null;
+  submittedAt: string;
+  isReviewed: boolean;
 }
