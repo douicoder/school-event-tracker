@@ -13,8 +13,6 @@ export class AuthManager implements IAuthManager {
     const valid = await bcrypt.compare(password, user.passwordHash);
     if (!valid) return null;
 
-    if (user.isBanned) return null;
-
     return {
       id: user.id,
       email: user.email,
