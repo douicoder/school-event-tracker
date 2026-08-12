@@ -23,8 +23,6 @@ export const classManager = new ClassManager(classesRepository);
 export const eventManager = new EventManager(
   eventsRepository,
   classesRepository,
-  usersRepository,
-  flaggedEventsRepository,
 );
 export const userManager = new UserManager(usersRepository);
 export const moderationManager = new ModerationManager(flaggedEventsRepository, usersRepository);
