@@ -1,7 +1,8 @@
 import type { ClassRow, UserRow } from "@/db/schema";
-import type { ClassInfo, EventInfo, User, FlaggedEventInfo } from "@/domain";
+import type { ClassInfo, DocumentInfo, EventInfo, User, FlaggedEventInfo } from "@/domain";
 import type { EventWithUsers } from "@/server/interfaces/events.repository.interface";
 import type { FlaggedEventWithUser } from "@/server/interfaces/flagged-events.repository.interface";
+import type { DocumentMeta } from "@/server/interfaces/documents.repository.interface";
 
 export function toClassInfo(row: ClassRow): ClassInfo {
   return {
@@ -41,6 +42,20 @@ export function toUser(row: UserRow): User {
     role: row.role,
     assignedClassId: row.assignedClassId,
     isBanned: row.isBanned,
+  };
+}
+
+export function toDocumentInfo(row: DocumentMeta): DocumentInfo {
+  return {
+    id: row.id,
+    classId: row.classId,
+    title: row.title,
+    fileName: row.fileName,
+    mimeType: row.mimeType,
+    sizeBytes: row.sizeBytes,
+    uploadedBy: row.uploadedBy,
+    uploadedByName: displayName(row.uploadedByUser),
+    createdAt: row.createdAt.toISOString(),
   };
 }
 

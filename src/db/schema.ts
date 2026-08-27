@@ -1,14 +1,26 @@
 import { relations } from "drizzle-orm";
 import {
   boolean,
+  customType,
   date,
   index,
+  integer,
   pgEnum,
   pgTable,
   text,
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
+
+// drizzle-orm 0.45 does not ship a built-in bytea column; define one.
+const bytea = customType<{ data: Buffer; driverData: Buffer }>({
+  dataType() {
+    return "bytea";
+  },
+  toDriver(value: Buffer) {
+    return value;
+  },
+});
 
 export const roleEnum = pgEnum("role", ["admin", "class_manager"]);
 
@@ -81,6 +93,37 @@ export const eventsRelations = relations(events, ({ one }) => ({
   }),
 }));
 
+export const documents = pgTable(
+  "documents",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    classId: uuid("class_id")
+      .references(() => classes.id, { onDelete: "cascade" })
+      .notNull(),
+    title: text("title").notNull(),
+    fileName: text("file_name").notNull(),
+    mimeType: text("mime_type").notNull(),
+    sizeBytes: integer("size_bytes").notNull(),
+    data: bytea("data").notNull(),
+    uploadedBy: uuid("uploaded_by").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [index("documents_class_idx").on(table.classId)],
+);
+
+export const documentsRelations = relations(documents, ({ one }) => ({
+  class: one(classes, {
+    fields: [documents.classId],
+    references: [classes.id],
+  }),
+  uploadedByUser: one(users, {
+    fields: [documents.uploadedBy],
+    references: [users.id],
+  }),
+}));
+
 export const flaggedEvents = pgTable("flagged_events", {
   id: uuid("id").defaultRandom().primaryKey(),
   classId: uuid("class_id").references(() => classes.id, {
@@ -119,3 +162,6 @@ export type NewEvent = typeof events.$inferInsert;
 
 export type FlaggedEventRow = typeof flaggedEvents.$inferSelect;
 export type NewFlaggedEvent = typeof flaggedEvents.$inferInsert;
+
+export type DocumentRow = typeof documents.$inferSelect;
+export type NewDocument = typeof documents.$inferInsert;

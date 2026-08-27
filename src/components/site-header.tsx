@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarDays, ShieldCheck } from "lucide-react";
+import { CalendarDays, FileText, ShieldCheck } from "lucide-react";
 import { auth } from "@/auth";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LogoutButton } from "@/components/auth/logout-button";
@@ -24,6 +24,14 @@ export async function SiteHeader() {
             className="hidden rounded-lg px-2.5 py-2 text-sm font-medium text-muted-foreground transition hover:bg-accent hover:text-accent-foreground sm:block"
           >
             Home
+          </Link>
+
+          <Link
+            href="/documents"
+            className="flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-sm font-medium text-muted-foreground transition hover:bg-accent hover:text-accent-foreground"
+          >
+            <FileText className="h-4 w-4" />
+            Documents
           </Link>
 
           {user?.role === "admin" ? (

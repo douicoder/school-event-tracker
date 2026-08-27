@@ -64,6 +64,29 @@ export interface CreateClassInput {
   description?: string | null;
 }
 
+export interface DocumentInfo {
+  id: string;
+  classId: string;
+  title: string;
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+  uploadedBy: string | null;
+  uploadedByName: string | null;
+  createdAt: string;
+}
+
+export interface CreateDocumentInput {
+  classId: string;
+  title: string;
+}
+
+export interface DocumentFile {
+  data: Buffer | Uint8Array | string;
+  mimeType: string;
+  fileName: string;
+}
+
 export interface UpdateClassInput {
   name?: string;
   description?: string | null;
