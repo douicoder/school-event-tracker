@@ -2,12 +2,11 @@
 
 import * as React from "react";
 import {
-  Eye,
   FileText,
   Loader2,
-  Lock,
   Trash2,
   Upload,
+  X,
 } from "lucide-react";
 import type { ClassInfo, DocumentInfo, UserRole } from "@/domain";
 import { api } from "@/lib/api";
@@ -28,6 +27,14 @@ function formatSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function extractTitleFromFilename(filename: string): string {
+  return filename
+    .replace(/\.[^/.]+$/, "")
+    .replace(/[-_]+/g, " ")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .trim();
+}
+
 export function DocumentsView({
   classes,
   initialClassId,
@@ -39,8 +46,7 @@ export function DocumentsView({
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
-  const [title, setTitle] = React.useState("");
-  const [file, setFile] = React.useState<File | null>(null);
+  const [pendingFiles, setPendingFiles] = React.useState<File[]>([]);
   const [uploading, setUploading] = React.useState(false);
   const [uploadError, setUploadError] = React.useState<string | null>(null);
 
@@ -74,36 +80,52 @@ export function DocumentsView({
     };
   }, [selectedClassId]);
 
-  async function handleUpload(event: React.FormEvent) {
-    event.preventDefault();
-    if (!file || !title.trim()) {
-      setUploadError("Title and file are required");
-      return;
+  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    if (files.length > 0) {
+      setPendingFiles((prev) => [...prev, ...files]);
     }
+    e.target.value = "";
+  }
+
+  function removePendingFile(index: number) {
+    setPendingFiles((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  async function handleUploadAll() {
+    if (pendingFiles.length === 0) return;
+
     setUploading(true);
     setUploadError(null);
-    try {
-      const form = new FormData();
-      form.append("classId", selectedClassId);
-      form.append("title", title.trim());
-      form.append("file", file);
-      const res = await fetch(`/api/classes/${selectedClassId}/documents`, {
-        method: "POST",
-        body: form,
-      });
-      if (!res.ok) {
-        const body = await res.json().catch(() => null);
-        throw new Error(body?.error?.message ?? "Upload failed");
+
+    const errors: string[] = [];
+
+    for (const file of pendingFiles) {
+      try {
+        const form = new FormData();
+        form.append("classId", selectedClassId);
+        form.append("title", extractTitleFromFilename(file.name));
+        form.append("file", file);
+        const res = await fetch(`/api/classes/${selectedClassId}/documents`, {
+          method: "POST",
+          body: form,
+        });
+        if (!res.ok) {
+          const body = await res.json().catch(() => null);
+          throw new Error(body?.error?.message ?? "Upload failed");
+        }
+        const data = (await res.json()) as { document: DocumentInfo };
+        setDocuments((prev) => [data.document, ...prev]);
+      } catch (err) {
+        errors.push(`${file.name}: ${err instanceof Error ? err.message : "Upload failed"}`);
       }
-      const data = (await res.json()) as { document: DocumentInfo };
-      setDocuments((prev) => [data.document, ...prev]);
-      setTitle("");
-      setFile(null);
-    } catch (err) {
-      setUploadError(err instanceof Error ? err.message : "Upload failed");
-    } finally {
-      setUploading(false);
     }
+
+    setPendingFiles([]);
+    if (errors.length > 0) {
+      setUploadError(errors.join("; "));
+    }
+    setUploading(false);
   }
 
   async function handleDelete() {
@@ -123,105 +145,112 @@ export function DocumentsView({
 
   const serveUrl = preview ? `/api/documents/${preview.id}` : "";
   const isImage = preview?.mimeType.startsWith("image/");
+  const isPdf = preview?.mimeType === "application/pdf";
 
   return (
     <div>
-      <div className="rounded-2xl border border-border bg-card p-4">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
-              <FileText className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-lg font-semibold">{selectedClass?.name}</h1>
-              <p className="text-sm text-muted-foreground">Class documents</p>
-            </div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+            <FileText className="h-5 w-5 text-primary" />
           </div>
-
-          <div className="flex flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
-            {classes.length > 1 ? (
-              <Select
-                value={selectedClassId}
-                onChange={(e) => setSelectedClassId(e.target.value)}
-                className="w-full sm:w-56"
-                aria-label="Select class"
-              >
-                {classes.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </Select>
-            ) : null}
-
-            {canManage ? (
-              <span className="inline-flex w-fit items-center gap-1 rounded-full bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground">
-                <Lock className="h-3 w-3" />
-                Can manage
-              </span>
-            ) : null}
+          <div>
+            <h1 className="text-lg font-semibold">{selectedClass?.name}</h1>
+            <p className="text-sm text-muted-foreground">{documents.length} documents</p>
           </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {classes.length > 1 && (
+            <Select
+              value={selectedClassId}
+              onChange={(e) => setSelectedClassId(e.target.value)}
+              className="w-48"
+              aria-label="Select class"
+            >
+              {classes.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </Select>
+          )}
+          {canManage && (
+            <Button onClick={() => setPendingFiles([])} variant="outline">
+              <Upload className="h-4 w-4" />
+              Upload
+            </Button>
+          )}
         </div>
       </div>
 
-      {canManage ? (
-        <form
-          onSubmit={handleUpload}
-          className="mt-6 rounded-2xl border border-border bg-card p-4"
-        >
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-            <label className="flex flex-1 flex-col gap-1 text-sm">
-              <span className="font-medium">Title</span>
-              <input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g. Syllabus 2025"
-                className="h-10 rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              />
-            </label>
-            <label className="flex flex-1 flex-col gap-1 text-sm">
-              <span className="font-medium">File (PDF, JPEG, PNG, WebP, GIF, max 10 MB)</span>
-              <input
-                type="file"
-                accept=".pdf,.jpg,.jpeg,.png,.webp,.gif,application/pdf,image/*"
-                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                className="h-10 rounded-lg border border-input bg-background px-3 text-sm file:mr-3 file:border-0 file:bg-transparent file:text-sm file:font-medium"
-              />
-            </label>
-            <Button type="submit" disabled={uploading}>
-              {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-              Upload
-            </Button>
-          </div>
-          {uploadError ? (
+      {canManage && (
+        <div className="mt-6 rounded-xl border border-dashed border-border p-4">
+          <input
+            type="file"
+            multiple
+            accept=".pdf,.jpg,.jpeg,.png,.webp,.gif,application/pdf,image/*"
+            onChange={handleFileSelect}
+            className="hidden"
+            id="file-upload"
+          />
+          <label
+            htmlFor="file-upload"
+            className="flex cursor-pointer flex-col items-center justify-center py-4 text-center"
+          >
+            <Upload className="h-8 w-8 text-muted-foreground" />
+            <span className="mt-2 text-sm font-medium">Click to upload files</span>
+            <span className="text-xs text-muted-foreground">PDF, images up to 10 MB</span>
+          </label>
+
+          {pendingFiles.length > 0 && (
+            <div className="mt-4 space-y-2 border-t pt-4">
+              {pendingFiles.map((file, index) => (
+                <div key={index} className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2">
+                  <span className="truncate text-sm">{file.name}</span>
+                  <button
+                    onClick={() => removePendingFile(index)}
+                    className="ml-2 text-muted-foreground hover:text-destructive"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="outline" size="sm" onClick={() => setPendingFiles([])}>
+                  Clear
+                </Button>
+                <Button size="sm" onClick={handleUploadAll} disabled={uploading}>
+                  {uploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Upload {pendingFiles.length} file{pendingFiles.length !== 1 ? "s" : ""}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {uploadError && (
             <p className="mt-3 rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
               {uploadError}
             </p>
-          ) : null}
-        </form>
-      ) : null}
+          )}
+        </div>
+      )}
 
-      {error ? (
+      {error && (
         <p className="mt-4 rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {error}
         </p>
-      ) : null}
+      )}
 
       <div className="mt-6">
         {loading ? (
-          <div className="flex items-center justify-center py-16 text-sm text-muted-foreground">
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Loading documents…
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
           </div>
         ) : documents.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border px-4 py-14 text-center">
+          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-12 text-center">
             <FileText className="h-10 w-10 text-muted-foreground" />
-            <h2 className="mt-4 text-lg font-semibold">No documents yet</h2>
-            <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-              {canManage
-                ? "Upload the first document for this class using the form above."
-                : "There are no documents for this class yet."}
-            </p>
+            <p className="mt-3 text-sm text-muted-foreground">No documents yet</p>
           </div>
         ) : (
           <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -239,27 +268,26 @@ export function DocumentsView({
                       {doc.fileName}
                     </p>
                   </div>
-                  <span className="shrink-0 rounded-full bg-secondary px-2 py-0.5 text-[10px] font-medium uppercase text-secondary-foreground">
+                  <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-medium uppercase">
                     {doc.mimeType.split("/")[1]}
                   </span>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
                   {formatSize(doc.sizeBytes)}
-                  {doc.uploadedByName ? ` · ${doc.uploadedByName}` : ""}
+                  {doc.uploadedByName && ` • ${doc.uploadedByName}`}
                 </p>
                 <div className="mt-3 flex items-center gap-2">
                   <Button size="sm" variant="outline" onClick={() => setPreview(doc)}>
-                    <Eye className="h-4 w-4" />
                     View
                   </Button>
                   <a
                     href={`/api/documents/${doc.id}`}
                     download={doc.fileName}
-                    className="inline-flex h-9 items-center justify-center rounded-md border border-input bg-background px-3 text-xs font-medium transition hover:bg-accent hover:text-accent-foreground"
+                    className="inline-flex h-9 items-center justify-center rounded-md border border-input bg-background px-3 text-xs font-medium hover:bg-accent"
                   >
                     Download
                   </a>
-                  {canManage ? (
+                  {canManage && (
                     <Button
                       size="sm"
                       variant="ghost"
@@ -268,7 +296,7 @@ export function DocumentsView({
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
-                  ) : null}
+                  )}
                 </div>
               </li>
             ))}
@@ -280,21 +308,74 @@ export function DocumentsView({
         open={!!preview}
         onClose={() => setPreview(null)}
         title={preview?.title ?? "Document"}
+        className="max-w-4xl"
       >
-        {preview ? (
-          <div className="max-h-[70vh] overflow-auto">
-            {isImage ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={serveUrl}
-                alt={preview.title}
-                className="mx-auto max-h-[60vh] rounded-lg object-contain"
-              />
-            ) : (
-              <iframe src={serveUrl} title={preview.title} className="h-[60vh] w-full rounded-lg" />
-            )}
+        {preview && (
+          <div className="space-y-4">
+            {/* Download Button - Prominent on Mobile */}
+            <div className="flex flex-col gap-3 rounded-lg border border-border bg-muted/30 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="text-sm">
+                <p className="font-medium">{preview.fileName}</p>
+                <p className="text-muted-foreground">
+                  {preview.mimeType === "application/pdf" ? "PDF Document" : "File"} • {formatSize(preview.sizeBytes)}
+                </p>
+              </div>
+              <a
+                href={serveUrl}
+                download={preview.fileName}
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 whitespace-nowrap"
+              >
+                Download File
+              </a>
+            </div>
+
+            {/* Document Viewer */}
+            <div className="relative rounded-lg border bg-muted/10 overflow-hidden">
+              {isPdf ? (
+                <div className="relative">
+                  {/* Mobile-friendly PDF viewer using object tag with fallback */}
+                  <object
+                    data={serveUrl}
+                    type="application/pdf"
+                    className="h-[60vh] w-full min-h-[400px]"
+                  >
+                    {/* Fallback for mobile browsers that don't support embedded PDFs */}
+                    <div className="flex h-[400px] flex-col items-center justify-center p-6 text-center">
+                      <FileText className="mb-4 h-16 w-16 text-muted-foreground" />
+                      <p className="mb-2 text-base font-medium">PDF Preview</p>
+                      <p className="mb-6 text-sm text-muted-foreground">
+                        Your browser doesn't support embedded PDF viewing.
+                        Please download the file to view it.
+                      </p>
+                      <a
+                        href={serveUrl}
+                        download={preview.fileName}
+                        className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                      >
+                        Download PDF
+                      </a>
+                    </div>
+                  </object>
+                </div>
+              ) : isImage ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={serveUrl}
+                  alt={preview.title}
+                  className="max-h-[60vh] w-full object-contain"
+                />
+              ) : (
+                <div className="flex h-[300px] flex-col items-center justify-center text-center p-6">
+                  <FileText className="mb-4 h-12 w-12 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Preview not available for this file type
+                  </p>
+                  <p className="text-xs text-muted-foreground">{preview.fileName}</p>
+                </div>
+              )}
+            </div>
           </div>
-        ) : null}
+        )}
       </Modal>
 
       <Modal
@@ -312,7 +393,7 @@ export function DocumentsView({
             Cancel
           </Button>
           <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
-            {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+            {deleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Delete
           </Button>
         </div>
