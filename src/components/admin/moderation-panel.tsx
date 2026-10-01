@@ -1,11 +1,13 @@
 "use client";
 
 import * as React from "react";
+import { NoSymbolIcon, ShieldCheckIcon } from "@heroicons/react/24/outline";
 import { Check, Loader2, ShieldAlert, Unlock } from "lucide-react";
 import type { FlaggedEventInfo, User } from "@/domain";
 import { api } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/empty-state";
 
 interface ModerationPanelProps {
   users: User[];
@@ -61,7 +63,10 @@ export function ModerationPanel({ users, onUsersChanged, onError }: ModerationPa
   const bannedUsers = users.filter((user) => user.isBanned);
 
   return (
-    <section className="mt-6 rounded-2xl border border-border bg-card p-5">
+    <section
+      className="animate-fade-in-up mt-6 rounded-2xl border border-border bg-card p-5"
+      style={{ animationDelay: "140ms" }}
+    >
       <div className="flex items-center gap-2">
         <ShieldAlert className="h-5 w-5 text-destructive" />
         <div>
@@ -75,8 +80,8 @@ export function ModerationPanel({ users, onUsersChanged, onError }: ModerationPa
           <h3 className="font-medium">Flagged submissions</h3>
           {loading ? <Loader2 className="mt-4 h-5 w-5 animate-spin text-muted-foreground" /> : (
             <ul className="mt-3 space-y-2">
-              {flagged.length === 0 ? <li className="rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground">No flagged submissions.</li> : flagged.map((item) => (
-                <li key={item.id} className="rounded-xl border border-border p-3 text-sm">
+              {flagged.length === 0 ? <li><EmptyState compact icon={ShieldCheckIcon} title="No flagged submissions." className="py-4" /></li> : flagged.map((item, index) => (
+                <li key={item.id} className="animate-fade-in-up rounded-xl border border-border p-3 text-sm" style={{ animationDelay: `${Math.min(index * 50, 350)}ms` }}>
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0"><p className="font-medium">{item.title}</p><p className="truncate text-muted-foreground">{item.submittedByName ?? "Deleted user"}{item.submittedByEmail ? ` · ${item.submittedByEmail}` : ""}</p><p className="text-muted-foreground">{item.eventDate}{item.className ? ` · ${item.className}` : ""}</p></div>
                     {item.isReviewed ? <Badge variant="secondary">Reviewed</Badge> : <Button size="sm" variant="outline" disabled={workingId === item.id} onClick={() => void markReviewed(item.id)}><Check className="h-4 w-4" />Mark reviewed</Button>}
@@ -89,8 +94,8 @@ export function ModerationPanel({ users, onUsersChanged, onError }: ModerationPa
         <div>
           <h3 className="font-medium">Banned users</h3>
           <ul className="mt-3 space-y-2">
-            {bannedUsers.length === 0 ? <li className="rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground">No banned users.</li> : bannedUsers.map((user) => (
-              <li key={user.id} className="flex items-center justify-between gap-3 rounded-xl border border-border p-3 text-sm"><div className="min-w-0"><p className="font-medium">{user.name ?? user.email}</p><p className="truncate text-muted-foreground">{user.email}</p></div><Button size="sm" variant="outline" disabled={workingId === user.id} onClick={() => void unban(user)}><Unlock className="h-4 w-4" />Unban</Button></li>
+            {bannedUsers.length === 0 ? <li><EmptyState compact icon={NoSymbolIcon} title="No banned users." className="py-4" /></li> : bannedUsers.map((user, index) => (
+              <li key={user.id} className="animate-fade-in-up flex items-center justify-between gap-3 rounded-xl border border-border p-3 text-sm" style={{ animationDelay: `${Math.min(index * 50, 350)}ms` }}><div className="min-w-0"><p className="font-medium">{user.name ?? user.email}</p><p className="truncate text-muted-foreground">{user.email}</p></div><Button size="sm" variant="outline" disabled={workingId === user.id} onClick={() => void unban(user)}><Unlock className="h-4 w-4" />Unban</Button></li>
             ))}
           </ul>
         </div>

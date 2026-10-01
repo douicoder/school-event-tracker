@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { FolderPlus } from "lucide-react";
+import { FolderPlusIcon } from "@heroicons/react/24/outline";
 import { getCurrentUser } from "@/auth/helpers";
 import { classManager } from "@/server/container";
+import { EmptyState } from "@/components/empty-state";
 import { HomeSchedule } from "@/components/home-schedule";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -27,22 +28,21 @@ export default async function HomePage() {
       <SiteHeader />
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:py-8">
         {classes.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border px-4 py-14 text-center sm:py-20">
-            <FolderPlus className="h-10 w-10 text-muted-foreground" />
-            <h1 className="mt-4 text-xl font-semibold">No classes yet</h1>
-            <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-              An administrator needs to create a class and assign a manager before events can be
-              scheduled.
-            </p>
+          <EmptyState
+            titleAs="h1"
+            icon={FolderPlusIcon}
+            title="No classes yet"
+            description="An administrator needs to create a class and assign a manager before events can be scheduled."
+          >
             {!user ? (
               <a
                 href="/login"
-                className="mt-5 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
+                className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
               >
                 Sign in as administrator
               </a>
             ) : null}
-          </div>
+          </EmptyState>
         ) : (
           <HomeSchedule
             classes={classes}

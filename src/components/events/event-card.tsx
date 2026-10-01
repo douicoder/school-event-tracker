@@ -15,7 +15,7 @@ export function EventCard({ event, onOpen }: EventCardProps) {
       type="button"
       onClick={() => onOpen(event)}
       className={cn(
-        "w-full rounded-xl border-l-4 px-3 py-2 text-left transition hover:brightness-95 dark:hover:brightness-125",
+        "w-full rounded-xl border-l-4 px-3 py-2 text-left transition duration-200 hover:-translate-y-0.5 hover:shadow-md hover:brightness-95 active:translate-y-0 dark:hover:brightness-125",
         variant.bg,
         variant.border,
       )}

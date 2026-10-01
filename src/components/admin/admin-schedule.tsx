@@ -3,7 +3,13 @@
 import * as React from "react";
 import { BarChart3 } from "lucide-react";
 import type { ClassInfo } from "@/domain";
-import { Select } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ScheduleBoard } from "@/components/events/schedule-board";
 import { RoleSwitcher } from "./role-switcher";
 
@@ -33,17 +39,17 @@ export function AdminSchedule({ classes }: AdminScheduleProps) {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <Select
-            value={selectedClassId}
-            onChange={(e) => setSelectedClassId(e.target.value)}
-            className="w-full sm:w-56"
-            aria-label="Select class to view"
-          >
-            {classes.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
+          <Select value={selectedClassId} onValueChange={setSelectedClassId}>
+            <SelectTrigger className="w-full sm:w-56" aria-label="Select class to view">
+              <SelectValue placeholder="Select a class" />
+            </SelectTrigger>
+            <SelectContent>
+              {classes.map((c) => (
+                <SelectItem key={c.id} value={c.id}>
+                  {c.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
           </Select>
           <RoleSwitcher previewing={previewing} onChange={setPreviewing} />
         </div>

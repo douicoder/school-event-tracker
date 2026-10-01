@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { DocumentTextIcon } from "@heroicons/react/24/outline";
 import {
   FileText,
   Loader2,
@@ -12,7 +13,14 @@ import type { ClassInfo, DocumentInfo, UserRole } from "@/domain";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
-import { Select } from "@/components/ui/select";
+import { EmptyState } from "@/components/empty-state";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface DocumentsViewProps {
   classes: ClassInfo[];
@@ -162,17 +170,17 @@ export function DocumentsView({
 
         <div className="flex items-center gap-3">
           {classes.length > 1 && (
-            <Select
-              value={selectedClassId}
-              onChange={(e) => setSelectedClassId(e.target.value)}
-              className="w-48"
-              aria-label="Select class"
-            >
-              {classes.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
+            <Select value={selectedClassId} onValueChange={setSelectedClassId}>
+              <SelectTrigger className="w-48" aria-label="Select class">
+                <SelectValue placeholder="Select class" />
+              </SelectTrigger>
+              <SelectContent>
+                {classes.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
             </Select>
           )}
           {canManage && (
@@ -248,16 +256,18 @@ export function DocumentsView({
             <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
           </div>
         ) : documents.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-12 text-center">
-            <FileText className="h-10 w-10 text-muted-foreground" />
-            <p className="mt-3 text-sm text-muted-foreground">No documents yet</p>
-          </div>
+          <EmptyState
+            icon={DocumentTextIcon}
+            title="No documents yet"
+            className="rounded-xl py-12 sm:py-12"
+          />
         ) : (
           <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {documents.map((doc) => (
+            {documents.map((doc, index) => (
               <li
                 key={doc.id}
-                className="flex flex-col rounded-xl border border-border bg-card p-4"
+                className="animate-fade-in-up flex flex-col rounded-xl border border-border bg-card p-4"
+                style={{ animationDelay: `${Math.min(index * 50, 350)}ms` }}
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
@@ -308,7 +318,7 @@ export function DocumentsView({
         open={!!preview}
         onClose={() => setPreview(null)}
         title={preview?.title ?? "Document"}
-        className="max-w-4xl"
+        className="sm:max-w-4xl"
       >
         {preview && (
           <div className="space-y-4">
@@ -344,7 +354,7 @@ export function DocumentsView({
                       <FileText className="mb-4 h-16 w-16 text-muted-foreground" />
                       <p className="mb-2 text-base font-medium">PDF Preview</p>
                       <p className="mb-6 text-sm text-muted-foreground">
-                        Your browser doesn't support embedded PDF viewing.
+                        Your browser doesn&apos;t support embedded PDF viewing.
                         Please download the file to view it.
                       </p>
                       <a

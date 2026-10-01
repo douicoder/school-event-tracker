@@ -1,13 +1,21 @@
 "use client";
 
 import * as React from "react";
+import { UsersIcon } from "@heroicons/react/24/outline";
 import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import type { ClassInfo, User, UserRole } from "@/domain";
 import { api } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import { EmptyState } from "@/components/empty-state";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Modal } from "@/components/ui/modal";
 
 interface UserProvisioningProps {
@@ -142,7 +150,10 @@ export function UserProvisioning({
   const showClassField = form.role === "class_manager";
 
   return (
-    <section className="rounded-2xl border border-border bg-card p-5">
+    <section
+      className="animate-fade-in-up rounded-2xl border border-border bg-card p-5"
+      style={{ animationDelay: "70ms" }}
+    >
       <div className="flex items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold">User Provisioning</h2>
@@ -156,14 +167,15 @@ export function UserProvisioning({
 
       <ul className="mt-4 space-y-2">
         {users.length === 0 ? (
-          <li className="rounded-xl border border-dashed border-border py-6 text-center text-sm text-muted-foreground">
-            No users yet.
+          <li>
+            <EmptyState compact icon={UsersIcon} title="No users yet." className="py-6" />
           </li>
         ) : (
-          users.map((user) => (
+          users.map((user, index) => (
             <li
               key={user.id}
-              className="flex items-center justify-between gap-3 rounded-xl border border-border px-4 py-3"
+              className="animate-fade-in-up flex items-center justify-between gap-3 rounded-xl border border-border px-4 py-3"
+              style={{ animationDelay: `${Math.min(index * 50, 350)}ms` }}
             >
               <div className="min-w-0">
                 <p className="flex items-center gap-2 truncate font-medium">
@@ -265,12 +277,16 @@ export function UserProvisioning({
                 Role
               </label>
               <Select
-                id="user-role"
                 value={form.role}
-                onChange={(e) => updateField("role", e.target.value as UserRole)}
+                onValueChange={(value) => updateField("role", value as UserRole)}
               >
-                <option value="class_manager">Class Manager</option>
-                <option value="admin">Admin</option>
+                <SelectTrigger id="user-role" className="w-full" aria-label="Role">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="class_manager">Class Manager</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                </SelectContent>
               </Select>
             </div>
 
@@ -280,16 +296,22 @@ export function UserProvisioning({
                   Assigned class
                 </label>
                 <Select
-                  id="user-class"
-                  value={form.assignedClassId}
-                  onChange={(e) => updateField("assignedClassId", e.target.value)}
+                  value={form.assignedClassId || "none"}
+                  onValueChange={(value) =>
+                    updateField("assignedClassId", value === "none" ? "" : value)
+                  }
                 >
-                  <option value="">None</option>
-                  {classes.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
+                  <SelectTrigger id="user-class" className="w-full" aria-label="Assigned class">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
+                    {classes.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
                 </Select>
               </div>
             ) : null}

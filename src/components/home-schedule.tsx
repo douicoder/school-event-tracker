@@ -3,7 +3,13 @@
 import * as React from "react";
 import { GraduationCap, Lock } from "lucide-react";
 import type { ClassInfo, UserRole } from "@/domain";
-import { Select } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ScheduleBoard } from "@/components/events/schedule-board";
 
 interface HomeScheduleProps {
@@ -37,17 +43,20 @@ export function HomeSchedule({ classes, initialClassId, role, assignedClassId }:
 
           <div className="flex flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
             {classes.length > 1 ? (
-              <Select
-                value={selectedClassId}
-                onChange={(e) => setSelectedClassId(e.target.value)}
-                className="w-full sm:w-56"
-                aria-label="Select class"
-              >
-                {classes.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
+              <Select value={selectedClassId} onValueChange={setSelectedClassId}>
+                <SelectTrigger
+                  className="w-full sm:w-56"
+                  aria-label="Select class"
+                >
+                  <SelectValue placeholder="Select class" />
+                </SelectTrigger>
+                <SelectContent>
+                  {classes.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
             ) : null}
 

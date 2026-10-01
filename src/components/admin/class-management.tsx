@@ -1,12 +1,14 @@
 "use client";
 
 import * as React from "react";
+import { AcademicCapIcon } from "@heroicons/react/24/outline";
 import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import type { ClassInfo } from "@/domain";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
+import { EmptyState } from "@/components/empty-state";
 
 interface ClassManagementProps {
   classes: ClassInfo[];
@@ -80,7 +82,7 @@ export function ClassManagement({ classes, onClassesChanged, onError }: ClassMan
   }
 
   return (
-    <section className="rounded-2xl border border-border bg-card p-5">
+    <section className="animate-fade-in-up rounded-2xl border border-border bg-card p-5">
       <div className="flex items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold">Class Management</h2>
@@ -94,14 +96,15 @@ export function ClassManagement({ classes, onClassesChanged, onError }: ClassMan
 
       <ul className="mt-4 space-y-2">
         {classes.length === 0 ? (
-          <li className="rounded-xl border border-dashed border-border py-6 text-center text-sm text-muted-foreground">
-            No classes yet.
+          <li>
+            <EmptyState compact icon={AcademicCapIcon} title="No classes yet." className="py-6" />
           </li>
         ) : (
-          classes.map((cls) => (
+          classes.map((cls, index) => (
             <li
               key={cls.id}
-              className="flex items-center justify-between gap-3 rounded-xl border border-border px-4 py-3"
+              className="animate-fade-in-up flex items-center justify-between gap-3 rounded-xl border border-border px-4 py-3"
+              style={{ animationDelay: `${Math.min(index * 50, 350)}ms` }}
             >
               <div className="min-w-0">
                 <p className="truncate font-medium">{cls.name}</p>
