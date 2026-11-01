@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f2bd2f" />
+    <title>Under Maintenance</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: "Trebuchet MS", sans-serif;
+        background: #f5f2e9;
+        color: #20201d;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        display: grid;
+        place-items: center;
+        padding: 32px 20px;
+        border-block: 12px solid transparent;
+        border-image: repeating-linear-gradient(
+            135deg,
+            #20201d 0 18px,
+            #f2bd2f 18px 36px
+          )
+          12;
+      }
+
+      main {
+        width: min(100%, 720px);
+        text-align: center;
+      }
+
+      img {
+        display: block;
+        width: min(100%, 480px);
+        height: auto;
+        margin: 0 auto 28px;
+        border: 5px solid #20201d;
+        background: #fff;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2rem, 8vw, 4.5rem);
+        line-height: 0.95;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img
+        src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNnpoZ3J1cG90Y2V2OWdycnJsdWxvNGp4Z3A4aDhqbmNyNGRjbWxzeiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/zOvBKUUEERdNm/giphy.gif"
+        alt="Animated construction worker digging"
+      />
+      <h1>Under Construction</h1>
+    </main>
+  </body>
+</html>
